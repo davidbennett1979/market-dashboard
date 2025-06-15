@@ -1,17 +1,39 @@
-import { create } from "zustand";
+// src/store/prefs.ts
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import type { PrefState, GlobalPrefs, CardPrefs } from '@/types/prefs';
 
-interface PrefState {
-  globals: Record<string, unknown>;
-  cardPrefs: Record<string, unknown>;
-  setGlobals: (g: Record<string, unknown>) => void;
-  setCardPrefs: (k: string, v: unknown) => void;
-}
+const defaultState: PrefState = {
+  globals: {
+    theme: 'dark',
+    fiat: 'USD',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    apiKeys: {},
+  },
+  cards: {
+    indexes:   { symbols: ['^GSPC', '^IXIC', '^DJI'], dataSource: 'yahoo',  refreshSec: 5   },
+    earnings:  {                                           dataSource: 'finnhub', refreshSec: 3600 },
+    'top-news':{                                           dataSource: 'newsapi', refreshSec: 120  },
+  },
+};
 
-export const usePrefs = create<PrefState>()((set) => ({
-  globals: {},
-  cardPrefs: {},
-  setGlobals: (g) => set(() => ({ globals: g })),
-  setCardPrefs: (key, val) =>
-    set((s) => ({ cardPrefs: { ...s.cardPrefs, [key]: val } })),
-}));
+export const usePrefs = create<PrefState & {
+  setGlobals: (g: Partial<GlobalPrefs>) => void;
+  setCard: (id: string, data: Partial<CardPrefs[string]>) => void;
+}>()(
+  persist(
+    (set, get) => ({
+      ...defaultState,
+      setGlobals: (g) => set({ globals: { ...get().globals, ...g } }),
+      setCard: (id, data) =>
+        set({
+          cards: { ...get().cards, [id]: { ...get().cards[id], ...data } },
+        }),
+    }),
+    {
+      name: 'market-dashboard-prefs',               // localStorage key
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
 
