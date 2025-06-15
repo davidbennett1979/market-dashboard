@@ -1,13 +1,19 @@
+// src/components/GlobalDrawer.tsx
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import { usePrefs } from "@/store/prefs";
 
-export default function GlobalDrawer({
-  open,
-  setOpen,
-}: {
+interface Props {
   open: boolean;
   setOpen: (v: boolean) => void;
-}) {
+}
+
+export default function GlobalDrawer({ open, setOpen }: Props) {
+  const { globals, setGlobals } = usePrefs();
+
+  const saveApiKey = (provider: string, val: string) =>
+    setGlobals({ apiKeys: { ...globals.apiKeys, [provider]: val } });
+
   return (
     <Transition show={open} as={Fragment}>
       <Dialog as="div" className="relative z-30" onClose={setOpen}>
@@ -32,13 +38,61 @@ export default function GlobalDrawer({
             leaveTo="translate-x-full"
             className="w-screen max-w-md"
           >
-            <Dialog.Panel className="h-full bg-neutral-900 p-6 shadow-xl">
+            <Dialog.Panel className="h-full w-full bg-neutral-900 p-6 shadow-xl">
               <Dialog.Title className="text-lg font-medium text-white">
-                Settings
+                Global Settings
               </Dialog.Title>
-              <p className="mt-4 text-sm text-neutral-400">
-                Global options will live here later – for now, just chrome.
-              </p>
+
+              {/* ---- Theme toggle ---- */}
+              <div className="mt-6">
+                <label className="block text-sm text-neutral-300 mb-1">
+                  Theme
+                </label>
+                <select
+                  className="w-full rounded bg-neutral-800 p-2 text-sm text-neutral-100"
+                  value={globals.theme}
+                  onChange={(e) => setGlobals({ theme: e.target.value as any })}
+                >
+                  <option value="dark">Dark</option>
+                  <option value="light">Light</option>
+                </select>
+              </div>
+
+              {/* ---- Default fiat ---- */}
+              <div className="mt-6">
+                <label className="block text-sm text-neutral-300 mb-1">
+                  Default currency
+                </label>
+                <select
+                  className="w-full rounded bg-neutral-800 p-2 text-sm text-neutral-100"
+                  value={globals.fiat}
+                  onChange={(e) => setGlobals({ fiat: e.target.value as any })}
+                >
+                  <option>USD</option>
+                  <option>EUR</option>
+                  <option>JPY</option>
+                </select>
+              </div>
+
+              {/* ---- API keys section ---- */}
+              <div className="mt-6 space-y-4">
+                {(
+                  [
+                    { id: "finnhub", label: "Finnhub API key" },
+                    { id: "newsapi", label: "NewsAPI key" },
+                  ] as const
+                ).map(({ id, label }) => (
+                  <label key={id} className="block text-sm text-neutral-300">
+                    {label}
+                    <input
+                      type="text"
+                      className="mt-1 w-full rounded bg-neutral-800 p-2 text-sm text-neutral-100"
+                      value={globals.apiKeys[id] ?? ""}
+                      onChange={(e) => saveApiKey(id, e.target.value)}
+                    />
+                  </label>
+                ))}
+              </div>
             </Dialog.Panel>
           </Transition.Child>
         </div>
