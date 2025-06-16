@@ -8,7 +8,11 @@ const defaultState: PrefState = {
     theme: 'dark',
     fiat: 'USD',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    apiKeys: {finnhub: '', newsapi: '' },
+    apiKeys: {
+      finnhub: false,
+      newsapi: false,
+      polygon: false,
+    },
   },
   cards: {
     indexes:   { symbols: ['^GSPC', '^IXIC', '^DJI'], dataSource: 'yahoo',  refreshSec: 5   },
