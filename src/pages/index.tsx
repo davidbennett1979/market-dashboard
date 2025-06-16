@@ -17,6 +17,7 @@ export default function Home() {
       {/* Row 3 */}
       <Card cardId="social" title="Social Sentiment" className="col-span-8 h-60" />
       <Card cardId="commodities" title="Commodities & DXY" className="col-span-4 h-60" />
+      <Card cardId="crypto" title="Crypto Movers" className="col-span-3 h-40" />
     </Layout>
   );
 }

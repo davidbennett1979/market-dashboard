@@ -3,7 +3,7 @@ export interface GlobalPrefs {
   theme: 'dark' | 'light';
   fiat: 'USD' | 'EUR' | 'JPY';
   timezone: string;             // IANA tz string
-  apiKeys: { [provider: string]: string };  // Finnhub, NewsAPI, etc.
+apiKeys: { [provider: string]: boolean };  // just true/false (“saved”)
 }
 
 // --- added alias ------------------------------------------------------
